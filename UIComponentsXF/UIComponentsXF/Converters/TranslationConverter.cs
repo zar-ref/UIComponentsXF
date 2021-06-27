@@ -10,6 +10,7 @@ namespace UIComponentsXF.Converters
 {
     public class TranslationConverter : IValueConverter
     {
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var translationDictionary = (Dictionary<string, string>)value;

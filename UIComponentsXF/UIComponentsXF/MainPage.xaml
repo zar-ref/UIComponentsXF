@@ -23,17 +23,10 @@
         </Label>
         
 <!--Text="{Binding Translations, Converter={StaticResource TranslationConverter} , ConverterParameter=label-go-to-next-page}"-->
-        <!--<Button>
-            <Button.Text>
-                <MultiBinding  Converter="{StaticResource TranslationConverter}">
-                    <Binding Path="{Binding Translation}" />
-                    <Binding Path="FirstValue" />
-                </MultiBinding>
-            </Button.Text>
-        </Button>-->
-            <!--Text="{Binding Translations, Converter={StaticResource TranslationConverter} , ConverterParameter=label-go-to-next-page}"
+        <Button
+            Text="{Binding Translations , Converter={StaticResource TranslationConverter} , ConverterParameter=label-go-to-next-page}"
 
-            Clicked="Button_Clicked"-->
+            Clicked="Button_Clicked"
             />
     </StackLayout>
 

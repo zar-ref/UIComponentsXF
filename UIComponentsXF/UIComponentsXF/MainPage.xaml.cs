@@ -21,6 +21,7 @@ namespace UIComponentsXF
             InitializeComponent();
             UIComponentsXF.Resources.Resources.Culture = new CultureInfo("pt");
             _viewModel = new MainPageViewModel();
+            //_viewModel.ClearTranslations();
             BindingContext = _viewModel;
 
 
@@ -35,7 +36,10 @@ namespace UIComponentsXF
         {
             base.OnAppearing();
             if (LanguageDataStore.Language != _viewModel.CurrentLanguage)
+            { 
                 _viewModel.SwitchTranslations();
+            }
+           
             else
                 _viewModel.OnPropertyChanged("Translations");
 
