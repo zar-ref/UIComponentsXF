@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="UIComponentsXF.MainPage">
+             x:Class="UIComponentsXF.MainPage"
+             xmlns:resx="clr-namespace:UIComponentsXF.Resources"
+             >
 
     <StackLayout>
         <Frame BackgroundColor="#2196F3" Padding="24" CornerRadius="0">
@@ -19,6 +21,20 @@
                 </FormattedString>
             </Label.FormattedText>
         </Label>
+        
+<!--Text="{Binding Translations, Converter={StaticResource TranslationConverter} , ConverterParameter=label-go-to-next-page}"-->
+        <!--<Button>
+            <Button.Text>
+                <MultiBinding  Converter="{StaticResource TranslationConverter}">
+                    <Binding Path="{Binding Translation}" />
+                    <Binding Path="FirstValue" />
+                </MultiBinding>
+            </Button.Text>
+        </Button>-->
+            <!--Text="{Binding Translations, Converter={StaticResource TranslationConverter} , ConverterParameter=label-go-to-next-page}"
+
+            Clicked="Button_Clicked"-->
+            />
     </StackLayout>
 
 </ContentPage>
