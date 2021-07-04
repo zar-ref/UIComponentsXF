@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UIComponentsXF.Converters;
 using UIComponentsXF.DataStores;
 using UIComponentsXF.Util;
 using UIComponentsXF.ViewModels;
@@ -20,14 +21,17 @@ namespace UIComponentsXF.Pages
             InitializeComponent();
             _viewModel = new UIComponentsPageViewModel();
             BindingContext = _viewModel;
-
+            
+            Label lblToAdd = new Label();
+            //lblToAdd.BindingContext = _viewModel;
+            lblToAdd.SetBinding(Label.TextProperty, BaseViewModel.GetTranslationBindingFromResource("label-go-to-next-page"));
+            firstStack.Children.Add(lblToAdd);
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
             _viewModel.OnPropertyChanged("Translations");
-            var count = _viewModel.Translations.Keys.Count();
         }
 
         public async void Button_Clicked(object sender, EventArgs e)
@@ -40,7 +44,12 @@ namespace UIComponentsXF.Pages
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
-            _viewModel.ClearTranslations();
+        }
+
+        void Button_Clicked_1(System.Object sender, System.EventArgs e)
+        {
+
+            DisplayAlert("hello" , "hello from the other side" , "back");
         }
     }
 }

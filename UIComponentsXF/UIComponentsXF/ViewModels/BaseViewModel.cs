@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using UIComponentsXF.Converters;
 using UIComponentsXF.DataStores;
 using UIComponentsXF.Resources;
 using UIComponentsXF.Util;
+using Xamarin.Forms;
 
 namespace UIComponentsXF.ViewModels
 {
@@ -16,12 +18,13 @@ namespace UIComponentsXF.ViewModels
 
         //Key: resource
         //Value: translation
-        private Dictionary<string, string> translations { get; set; } = new Dictionary<string, string>();
-        public Dictionary<string, string> Translations
+        private static Dictionary<string, string> translations { get; set; } = new Dictionary<string, string>();
+        public  Dictionary<string, string> Translations
         {
             get
             {
-
+                if (translations == null)
+                    translations = new Dictionary<string, string>();
                 return translations;
             }
             set
@@ -62,6 +65,15 @@ namespace UIComponentsXF.ViewModels
                 RegisterTranslation(resource);
             }
 
+        }
+
+        public static Binding GetTranslationBindingFromResource( string resource)
+        {
+            var converter = new TranslationConverter();
+            Binding binding = new Binding("Translations");
+            binding.Converter = converter;
+            binding.ConverterParameter = resource;
+            return binding;
         }
 
 

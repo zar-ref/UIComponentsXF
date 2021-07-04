@@ -43,7 +43,6 @@ namespace UIComponentsXF
             else
                 _viewModel.OnPropertyChanged("Translations");
 
-            var count = _viewModel.Translations.Keys.Count();
         }
     }
 }

@@ -27,7 +27,7 @@ namespace UIComponentsXF.Resources
                 ? new CultureInfo("pt")
                 : new CultureInfo("en");
 
-             
+           
             return resourceManager.GetString(item, ci);
         }
 
@@ -44,5 +44,9 @@ namespace UIComponentsXF.Resources
 
             return resourceManager.GetString(Text, ci);
         }
+
+       
     }
+
+   
 }
