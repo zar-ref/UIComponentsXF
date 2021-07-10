@@ -10,6 +10,8 @@ namespace UIComponentsXF.ViewComponents
     {
 
         public DateTime CurrentDate { get; set; }
+        public DateTime PreviousMonth { get; set; }
+        public DateTime NextMonth { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
         public int Day { get; set; }
@@ -17,13 +19,26 @@ namespace UIComponentsXF.ViewComponents
         public Dictionary<DayOfWeek, List<int>> MonthDaysPerWeekDay { get; set; }
         public Dictionary<DayOfWeek, int> PreviousMonthLastWeekDaysPerWeekDay { get; set; }
         public Dictionary<DayOfWeek, int> NextMonthFirstWeekDaysPerWeekDay { get; set; }
+        public static Dictionary<DayOfWeek, int> DayOfWeekIndexDictionary { get; set; } = new Dictionary<DayOfWeek, int>
+        {
+            { DayOfWeek.Sunday,     0 },
+            { DayOfWeek.Monday,     1 },
+            { DayOfWeek.Tuesday,    2 },
+            { DayOfWeek.Wednesday,  3 },
+            { DayOfWeek.Thursday,   4 },
+            { DayOfWeek.Friday,     5 },
+            { DayOfWeek.Saturday,   6 },
+
+        };
         public DatePickerViewComponent(DateTime currentDate, DateTime? minDate, DateTime? date)
         {
             InitializeComponent();
-            CurrentDate = DateTime.Parse( currentDate.ToString("dd/MM/yyyy") , LanguageDataStore.CurrentAplicationCultureInfo);
-            Year = currentDate.Year;
-            Month = currentDate.Month;
-            Day = currentDate.Day;
+            CurrentDate = DateTime.Parse(currentDate.ToString("dd/MM/yyyy"), LanguageDataStore.CurrentAplicationCultureInfo);
+            var firstDayCurrentMonth = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
+            PreviousMonth = firstDayCurrentMonth.AddDays(-1); //last day of previous month
+
+            NextMonth = CurrentDate.AddMonths(1).AddDays(-(CurrentDate.Day - 1)); //first day of next month
+
             SetMonthDaysPerWeekDay(CurrentDate);
 
             daysStack.Children.Add(ConstructDaysOfMonthStack());
@@ -66,7 +81,7 @@ namespace UIComponentsXF.ViewComponents
             MonthDaysPerWeekDay.Add(DayOfWeek.Thursday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Thursday).Select(wd => wd.Day).ToList());
             MonthDaysPerWeekDay.Add(DayOfWeek.Friday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Friday).Select(wd => wd.Day).ToList());
             MonthDaysPerWeekDay.Add(DayOfWeek.Saturday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Saturday).Select(wd => wd.Day).ToList());
-       
+
 
             var lastMonth = date.AddMonths(-1);
             var nextMonth = date.AddMonths(1);
@@ -108,7 +123,7 @@ namespace UIComponentsXF.ViewComponents
 
         public StackLayout ConstructDaysOfMonthStack()
         {
-            StackLayout finalStack = new StackLayout() { Orientation = StackOrientation.Vertical , HorizontalOptions = LayoutOptions.FillAndExpand , VerticalOptions = LayoutOptions.FillAndExpand};
+            StackLayout finalStack = new StackLayout() { Orientation = StackOrientation.Vertical, HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand };
 
             var weekHeaders = MonthDaysPerWeekDay.Keys;
             StackLayout weekHeadersStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
@@ -118,10 +133,87 @@ namespace UIComponentsXF.ViewComponents
                 weekHeadersStack.Children.Add(new Label() { Text = weekHeaderDay.Substring(0, 1).ToUpper() });
             }
             finalStack.Children.Add(weekHeadersStack);
+
+            StackLayout firstWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
+
+            var previousMonthLastDayOfWeek = PreviousMonth.DayOfWeek;
+            var previousMonthLastDayOfWeekIndex = DayOfWeekIndexDictionary[previousMonthLastDayOfWeek]; //3 -> quarta feira
+            var dayOfWeek = PreviousMonthLastWeekDaysPerWeekDay.FirstOrDefault(d => d.Value == previousMonthLastDayOfWeekIndex).Key; //quarta feira
+            int lastWeekDayNumberOfPreviousMonth = PreviousMonthLastWeekDaysPerWeekDay[dayOfWeek]; //quarta feira dia 30 de junho
+            int firstDayOfLastWeekDay = lastWeekDayNumberOfPreviousMonth - previousMonthLastDayOfWeekIndex; // 27 de junho
+            int firstWeekIndex = 0;
+
+            for (firstWeekIndex = lastWeekDayNumberOfPreviousMonth; firstWeekIndex <= PreviousMonth.Day; firstWeekIndex++)
+            {
+                firstWeekStack.Children.Add(new Label() { Text = firstWeekIndex.ToString() });
+
+            }
+
+
+
+
+            var currentMonthFirstDayOfMonth = DayOfWeekIndexDictionary.FirstOrDefault(d => d.Value == firstWeekIndex).Key; // quinta feira
+            int firstDayOfCurrentMonth = MonthDaysPerWeekDay[currentMonthFirstDayOfMonth].FirstOrDefault(d => d == 1);
+            int currentMonthDayIndex = firstDayOfCurrentMonth;
+
+            for (int j = 0; j < 7 - firstWeekIndex; j++, currentMonthDayIndex++)
+            {
+                firstWeekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString() });
+
+            }
+
+            finalStack.Children.Add(firstWeekStack);
+
+            firstWeekIndex = 0;
+            int lastDayOfCurrentMonth = NextMonth.AddDays(-1).Day;
+            var nextMonthFirstDayOfWeek = NextMonth.DayOfWeek;
+            var nextMonthFirstDayOfWeekIndex = DayOfWeekIndexDictionary[nextMonthFirstDayOfWeek];
+            int i = 0;
+
+            StackLayout finalWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
+            for (int j = 0; j < 5; j++)
+            {
+                StackLayout weekStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
+                i = 0;
+                for (i = 0; i < 7; i++, currentMonthDayIndex++)
+                {
+                    if (currentMonthDayIndex == lastDayOfCurrentMonth)
+                        break;
+                    weekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString() });
+
+                }
+                if (i % 7 == 0)
+                {
+                    finalStack.Children.Add(weekStack);
+                    if (currentMonthDayIndex == lastDayOfCurrentMonth)
+                        break;
+                    continue;
+                }
+
+                for (; i < 7; i++, nextMonthFirstDayOfWeekIndex++)
+                {
+                    finalWeekStack.Children.Add(new Label() { Text = nextMonthFirstDayOfWeekIndex.ToString() });
+                }
+                break;
+
+            }
+
+            var firsDayOftWeekOfNextMonth = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault(d => d.Value == nextMonthFirstDayOfWeekIndex).Key;
+            int firstWeekDayNumberOfNextMonth = PreviousMonthLastWeekDaysPerWeekDay[firsDayOftWeekOfNextMonth]; // 1 de agosto
+
+            for (int j = 0; j < 7 - i; j++, firstWeekDayNumberOfNextMonth++)
+            {
+                finalWeekStack.Children.Add(new Label() { Text = firstWeekDayNumberOfNextMonth.ToString() });
+            }
+
+            finalStack.Children.Add(finalWeekStack);
+
+
+
             return finalStack;
 
-
-
         }
+
+
     }
 }
