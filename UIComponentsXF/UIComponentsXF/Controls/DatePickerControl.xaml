@@ -1,22 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<Grid
+<Button
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="UIComponentsXF.Controls.DatePickerControl"
     HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
-    BackgroundColor="DarkGray">
-   <Grid.RowDefinitions>
-        <RowDefinition Height=".2*"/>
-        <RowDefinition Height=".2*"/>
-        <RowDefinition Height=".6*"/>
-    </Grid.RowDefinitions>
-    <StackLayout Grid.Row="0" x:Name="yearStack">
-        <Label/>
-    </StackLayout>
-    <StackLayout Grid.Row="1" x:Name="monthStack">
-
-    </StackLayout>
-    <StackLayout Grid.Row="2" x:Name="dayStack">
-
-    </StackLayout>
-</Grid>
+    BackgroundColor="DarkGray"
+    x:Name="control"
+   
+    Clicked="OnDatePickerClicked"
+    >
+    
+ 
+</Button>

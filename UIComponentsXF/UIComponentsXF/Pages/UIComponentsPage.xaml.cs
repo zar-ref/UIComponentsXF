@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UIComponentsXF.Controls;
 using UIComponentsXF.Converters;
 using UIComponentsXF.DataStores;
 using UIComponentsXF.Util;
@@ -13,8 +14,11 @@ using Xamarin.Forms.Xaml;
 namespace UIComponentsXF.Pages
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class UIComponentsPage : ContentPage
+    public partial class UIComponentsPage : BaseNavigationPage
     {
+
+        
+
         public UIComponentsPageViewModel _viewModel { get; set; }
         public UIComponentsPage()
         {
@@ -26,6 +30,9 @@ namespace UIComponentsXF.Pages
             //lblToAdd.BindingContext = _viewModel;
             lblToAdd.SetBinding(Label.TextProperty, BaseViewModel.GetTranslationBindingFromResource("label-go-to-next-page"));
             firstStack.Children.Add(lblToAdd);
+      
+            //DatePickerControl control = new DatePickerControl();
+            // control.SetBinding(DatePickerControl.DateProperty)   ;
         }
 
         protected override void OnAppearing()

@@ -126,4 +126,7 @@
   <data name="label-in-next-page" xml:space="preserve">
     <value>Na próxima página</value>
   </data>
+  <data name="label-choose-date" xml:space="preserve">
+    <value>Escolher Data</value>
+  </data>
 </root>
