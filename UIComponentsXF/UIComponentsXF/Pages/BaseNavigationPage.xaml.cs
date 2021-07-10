@@ -32,8 +32,16 @@ namespace UIComponentsXF.Pages
             ToogleModalVisibility(false);
         }
 
-        public void ToogleModalVisibility(bool isVisible)
+        public void ToogleModalVisibility(bool isVisible) // order matters
         {
+            if (isVisible)
+            {
+                OverlayFrame.IsVisible = isVisible;
+                ModalBorderFrame.IsVisible = isVisible;
+                ModalFrame.IsVisible = isVisible;
+                return;
+
+            }
             ModalFrame.IsVisible = isVisible;
             ModalBorderFrame.IsVisible = isVisible;
             OverlayFrame.IsVisible = isVisible;

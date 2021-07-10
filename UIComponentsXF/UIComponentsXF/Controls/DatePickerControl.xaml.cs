@@ -16,7 +16,21 @@ namespace UIComponentsXF.Controls
            propertyName: "Date",
            returnType: typeof(DateTime),
            declaringType: typeof(DatePickerControl),
-           defaultValue: DateTime.Today);
+           defaultValue: DateTime.Today,
+           propertyChanged: DatePropertyChanged);
+
+        public DateTime Date
+        {
+            get { return (DateTime)GetValue(DateProperty); }
+            set { SetValue(DateProperty, value); }
+        }
+
+        private static void DatePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            var control = (DatePickerControl)bindable;
+            control.Date = (DateTime)newValue;
+        }
+
 
         public static readonly BindableProperty DisplayTextProperty = BindableProperty.Create(
             propertyName: "DisplayText",
@@ -24,6 +38,7 @@ namespace UIComponentsXF.Controls
             declaringType: typeof(DatePickerControl),
             defaultValue: string.Empty,
             propertyChanged: DisplayTextPropertyChanged);
+
 
         public string DisplayText
         {
@@ -34,7 +49,7 @@ namespace UIComponentsXF.Controls
         private static void DisplayTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var control = (DatePickerControl)bindable;
-            control.Text = newValue.ToString();
+            control.DisplayText = control.Text = newValue.ToString();
         }
 
         public DatePickerControl()
@@ -46,7 +61,7 @@ namespace UIComponentsXF.Controls
         void OnDatePickerClicked(System.Object sender, System.EventArgs e)
         {
             BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
-            page.ModalFrame.Content = new DatePickerViewComponent();
+            page.ModalFrame.Content = new DatePickerViewComponent(Date , null , null );
             page.ToogleModalVisibility(true);
         }
     }
