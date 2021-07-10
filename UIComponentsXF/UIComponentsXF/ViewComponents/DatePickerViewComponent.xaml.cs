@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UIComponentsXF.DataStores;
 using Xamarin.Forms;
 
 namespace UIComponentsXF.ViewComponents
@@ -19,13 +20,13 @@ namespace UIComponentsXF.ViewComponents
         public DatePickerViewComponent(DateTime currentDate, DateTime? minDate, DateTime? date)
         {
             InitializeComponent();
-            CurrentDate = currentDate;
+            CurrentDate = DateTime.Parse( currentDate.ToString("dd/MM/yyyy") , LanguageDataStore.CurrentAplicationCultureInfo);
             Year = currentDate.Year;
             Month = currentDate.Month;
             Day = currentDate.Day;
             SetMonthDaysPerWeekDay(CurrentDate);
 
-
+            daysStack.Children.Add(ConstructDaysOfMonthStack());
 
             //yearDate.Text = currentDate.ToString("dd/MM/yyyy");
         }
@@ -57,7 +58,7 @@ namespace UIComponentsXF.ViewComponents
         private void SetMonthDaysPerWeekDay(DateTime date)
         {
             var datesInMonth = AllDatesInMonth(date.Year, date.Month);
-            MonthDaysPerWeekDay.Clear();
+            MonthDaysPerWeekDay = new Dictionary<DayOfWeek, List<int>>();
             MonthDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).Select(wd => wd.Day).ToList());
             MonthDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(wd => wd.Day).ToList());
             MonthDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).Select(wd => wd.Day).ToList());
@@ -78,7 +79,7 @@ namespace UIComponentsXF.ViewComponents
         private void SetPreviousMonthLastWeekDaysPerWeekDay(DateTime date)
         {
             var datesInMonth = LastWeekFromPreviousMonth(date.Year, date.Month);
-            PreviousMonthLastWeekDaysPerWeekDay.Clear();
+            PreviousMonthLastWeekDaysPerWeekDay = new Dictionary<DayOfWeek, int>();
             PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).Select(wd => wd.Day).FirstOrDefault());
             PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(wd => wd.Day).FirstOrDefault());
             PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).Select(wd => wd.Day).FirstOrDefault());
@@ -93,7 +94,7 @@ namespace UIComponentsXF.ViewComponents
         private void SetNextMonthFirstWeekDaysPerWeekDay(DateTime date)
         {
             var datesInMonth = FirstWeekFromNextMonth(date.Year, date.Month);
-            NextMonthFirstWeekDaysPerWeekDay.Clear();
+            NextMonthFirstWeekDaysPerWeekDay = new Dictionary<DayOfWeek, int>();
             NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).Select(wd => wd.Day).FirstOrDefault()); ;
             NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(wd => wd.Day).FirstOrDefault());
             NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).Select(wd => wd.Day).FirstOrDefault());
@@ -105,10 +106,19 @@ namespace UIComponentsXF.ViewComponents
 
         }
 
-        public StackLayout DaysOfMonthStack()
+        public StackLayout ConstructDaysOfMonthStack()
         {
+            StackLayout finalStack = new StackLayout() { Orientation = StackOrientation.Vertical , HorizontalOptions = LayoutOptions.FillAndExpand , VerticalOptions = LayoutOptions.FillAndExpand};
 
-            return new StackLayout();
+            var weekHeaders = MonthDaysPerWeekDay.Keys;
+            StackLayout weekHeadersStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
+            foreach (var weekHeader in weekHeaders)
+            {
+                var weekHeaderDay = LanguageDataStore.CurrentAplicationCultureInfo.DateTimeFormat.GetDayName(weekHeader);
+                weekHeadersStack.Children.Add(new Label() { Text = weekHeaderDay.Substring(0, 1).ToUpper() });
+            }
+            finalStack.Children.Add(weekHeadersStack);
+            return finalStack;
 
 
 

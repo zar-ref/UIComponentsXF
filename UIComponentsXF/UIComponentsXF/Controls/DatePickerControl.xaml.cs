@@ -49,7 +49,7 @@ namespace UIComponentsXF.Controls
         private static void DisplayTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var control = (DatePickerControl)bindable;
-            control.DisplayText = control.Text = newValue.ToString();
+          control.Text = newValue.ToString();
         }
 
         public DatePickerControl()
@@ -60,9 +60,8 @@ namespace UIComponentsXF.Controls
 
         void OnDatePickerClicked(System.Object sender, System.EventArgs e)
         {
-            BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
-            page.ModalFrame.Content = new DatePickerViewComponent(Date , null , null );
-            page.ToogleModalVisibility(true);
+            BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();           
+            page.ToogleModalVisibility(true , new DatePickerViewComponent(Date, null, null) );
         }
     }
 }

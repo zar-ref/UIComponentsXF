@@ -14,7 +14,7 @@
     <StackLayout Grid.Row="1" x:Name="monthStack">
 
     </StackLayout>
-    <StackLayout Grid.Row="2" x:Name="dayStack">
+    <StackLayout Grid.Row="2" x:Name="daysStack">
 
     </StackLayout>
 </Grid>

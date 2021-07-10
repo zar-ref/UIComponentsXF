@@ -9,18 +9,34 @@ namespace UIComponentsXF.DataStores
     public class LanguageDataStore
     {
         public static string Language { get; set; } = Enumerators.Languages.Portuguese.ToString();
+        public static Dictionary<string, CultureInfo> LanguageDictionary { get; set; } = new Dictionary<string, CultureInfo>
+        {
+            { Enumerators.Languages.Portuguese.ToString(), new CultureInfo("pt") },
+            { Enumerators.Languages.English.ToString(), new CultureInfo("en") }
 
-        public static void ChangeLanguage(Enumerators.Languages language)
+        };
+        public static CultureInfo CurrentAplicationCultureInfo
+        {
+            get
+            {
+                return LanguageDictionary[Language];
+            }
+        }
+
+
+
+        public static void ChangeLanguage(Enumerators.Languages newLanguage)
         {
 
-            var ci = language.ToString().Equals(Language)
-               ? new CultureInfo("pt")
-               : new CultureInfo("en");
-            UIComponentsXF.Resources.Resources.Culture = ci;
-            if (ci.Name == "pt")
-                Language = Enumerators.Languages.Portuguese.ToString();
-            else
-                Language = Enumerators.Languages.English.ToString();
+            if (Language != newLanguage.ToString())
+            {
+                var newCultureInfo = LanguageDictionary[newLanguage.ToString()];
+                UIComponentsXF.Resources.Resources.Culture = newCultureInfo;
+                Language = newLanguage.ToString();
+            }
+
+
+
         }
 
     }

@@ -6,9 +6,9 @@
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height=".1*" />
+                <RowDefinition Height=".2*" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height=".1*" />
+                <RowDefinition Height=".2*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width=" .1*" />
@@ -32,9 +32,7 @@
 
             <Frame IsVisible="False" x:Name="modalBorderFrame" Grid.Row="1" Grid.Column="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"    BackgroundColor="White" HasShadow="False" Margin="0" Padding="0"   >
                 <Frame  IsVisible="False" x:Name="modalFrame" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"  Margin="6"  BackgroundColor="DarkGray" HasShadow="False">
-                    <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-
-                    </Grid>
+                    
                 </Frame>
             </Frame>
         </Grid>
