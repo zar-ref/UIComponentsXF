@@ -9,6 +9,7 @@ namespace UIComponentsXF.ViewComponents
     public partial class DatePickerViewComponent : Grid
     {
 
+        public DateTime ChosenDate {get ; set ;}
         public DateTime CurrentDate { get; set; }
         public DateTime PreviousMonth { get; set; }
         public DateTime NextMonth { get; set; }
@@ -44,6 +45,11 @@ namespace UIComponentsXF.ViewComponents
             daysStack.Children.Add(ConstructDaysOfMonthStack());
 
             //yearDate.Text = currentDate.ToString("dd/MM/yyyy");
+            ChosenDate = CurrentDate;
+            MessagingCenter.Subscribe<DateButton, DateTime>(this, "DateChanged", (sender, arg) =>
+            {
+                ChosenDate = DateTime.Parse(arg.ToString("dd/MM/yyyy"), LanguageDataStore.CurrentAplicationCultureInfo);
+            });
         }
 
         public static IEnumerable<DateTime> AllDatesInMonth(int year, int month)
@@ -123,18 +129,22 @@ namespace UIComponentsXF.ViewComponents
 
         public StackLayout ConstructDaysOfMonthStack()
         {
+            int gridCellDimensions = UtilViewBuilder.DeviceWidth / 14;
+
+
             StackLayout finalStack = new StackLayout() { Orientation = StackOrientation.Vertical, HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.FillAndExpand };
 
             var weekHeaders = MonthDaysPerWeekDay.Keys;
-            StackLayout weekHeadersStack = new StackLayout() { Orientation = StackOrientation.Horizontal , HorizontalOptions = LayoutOptions.Center };
+            StackLayout weekHeadersStack = new StackLayout() { Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.FillAndExpand };
             foreach (var weekHeader in weekHeaders)
             {
                 var weekHeaderDay = LanguageDataStore.CurrentAplicationCultureInfo.DateTimeFormat.GetDayName(weekHeader);
-                weekHeadersStack.Children.Add(new Label() { Text = weekHeaderDay.Substring(0, 1).ToUpper(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                weekHeadersStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = weekHeaderDay.Substring(0, 1).ToUpper() }, gridCellDimensions));
+                //weekHeadersStack.Children.Add(new Label() { Text = weekHeaderDay.Substring(0, 1).ToUpper(), HorizontalOptions = LayoutOptions.CenterAndExpand });
             }
             finalStack.Children.Add(weekHeadersStack);
 
-            StackLayout firstWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
+            StackLayout firstWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.FillAndExpand };
 
             var previousMonthLastDayOfWeek = PreviousMonth.DayOfWeek;
             var previousMonthLastDayOfWeekIndex = DayOfWeekIndexDictionary[previousMonthLastDayOfWeek]; //3 -> quarta feira
@@ -143,12 +153,14 @@ namespace UIComponentsXF.ViewComponents
             int firstDayOfLastWeekDay = lastWeekDayNumberOfPreviousMonth - previousMonthLastDayOfWeekIndex; // 27 de junho
             int weekDay = 0;
             int firstWeekDayIndex = 0;
-            for (weekDay = lastWeekDayNumberOfPreviousMonth; weekDay <= PreviousMonth.Day; weekDay++ , firstWeekDayIndex++)
+            for (weekDay = lastWeekDayNumberOfPreviousMonth; weekDay <= PreviousMonth.Day; weekDay++, firstWeekDayIndex++)
             {
 
-                firstWeekStack.Children.Add(new Label() { Text = weekDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
-               
+                // firstWeekStack.Children.Add(new Label() { Text = weekDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
 
+                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = weekDay.ToString() }, gridCellDimensions));
+
+                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton()))
             }
 
 
@@ -160,8 +172,8 @@ namespace UIComponentsXF.ViewComponents
 
             for (int j = 0; j < 7 - firstWeekDayIndex; j++, currentMonthDayIndex++)
             {
-                firstWeekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
-
+                //firstWeekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
             }
 
             finalStack.Children.Add(firstWeekStack);
@@ -171,16 +183,17 @@ namespace UIComponentsXF.ViewComponents
             var nextMonthFirstDayOfWeekIndex = DayOfWeekIndexDictionary[nextMonthFirstDayOfWeek];
             int i = 0;
             int nextMonthDay = 1;
-            StackLayout finalWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
+            StackLayout finalWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.FillAndExpand };
             for (int j = 0; j < 5; j++)
             {
-                StackLayout weekStack = new StackLayout() { Orientation = StackOrientation.Horizontal };
+                StackLayout weekStack = new StackLayout() { Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.FillAndExpand };
                 i = 0;
                 for (i = 0; i < 7; i++, currentMonthDayIndex++)
                 {
                     if (currentMonthDayIndex == lastDayOfCurrentMonth)
                         break;
-                    weekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                    //weekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                    weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
 
                 }
                 if (i % 7 == 0)
@@ -190,34 +203,38 @@ namespace UIComponentsXF.ViewComponents
                         break;
                     continue;
                 }
-                if(weekStack.Children.Count() > 0)
+                if (weekStack.Children.Count() > 0)
                 {
-                    
+
                     for (int k = weekStack.Children.Count(); k < 7; k++)
                     {
                         if (currentMonthDayIndex <= lastDayOfCurrentMonth)
                         {
-                            weekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                            // weekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
                             currentMonthDayIndex++;
                         }
                         else
                         {
-                            weekStack.Children.Add(new Label() { Text = nextMonthDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                            //weekStack.Children.Add(new Label() { Text = nextMonthDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = nextMonthDay.ToString() }, gridCellDimensions));
                             nextMonthDay++;
                         }
                     }
                     finalStack.Children.Add(weekStack);
                     break;
-                }               
+                }
 
             }
 
             var firsDayOftWeekOfNextMonth = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault(d => d.Value == nextMonthFirstDayOfWeekIndex).Key;
             int firstWeekDayNumberOfNextMonth = PreviousMonthLastWeekDaysPerWeekDay[firsDayOftWeekOfNextMonth]; // 1 de agosto
 
-            for (int j = 0; j < 7 ; j++, nextMonthDay++)
+            for (int j = 0; j < 7; j++, nextMonthDay++)
             {
-                finalWeekStack.Children.Add(new Label() { Text = nextMonthDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                // finalWeekStack.Children.Add(new Label() { Text = nextMonthDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = nextMonthDay.ToString() }, gridCellDimensions));
+
             }
 
             finalStack.Children.Add(finalWeekStack);
@@ -229,5 +246,27 @@ namespace UIComponentsXF.ViewComponents
         }
 
 
+    }
+
+
+
+
+    public class DateButton : Button
+    {
+        public DateTime Date { get; set; }
+        public DateButton(DateTime date) : base()
+        {
+
+            Date = date;
+            Text = date.Day.ToString();
+            TextColor = Color.Black;
+            Clicked += DateButton_Clicked;
+        }
+
+        private   void DateButton_Clicked(object sender, EventArgs e)
+        {
+            TextColor = Color.ForestGreen;
+            MessagingCenter.Send<DateButton , DateTime>(this, "DateChanged", Date);
+        }
     }
 }
