@@ -21,7 +21,9 @@
                 />
 
                 <StackLayout x:Name="firstStack" > 
-                    <controls:DatePickerControl  DisplayText="{Binding  Path=Translations , Converter={StaticResource TranslationConverter} , ConverterParameter=label-in-next-page}" />
+                 
+                    <controls:DatePickerControl  Date="{Binding Date1}" />
+                    <controls:DatePickerControl  Date="{Binding Date2}" />
                 </StackLayout>
             </StackLayout>
     </pages:BaseNavigationPage.ChildContent>

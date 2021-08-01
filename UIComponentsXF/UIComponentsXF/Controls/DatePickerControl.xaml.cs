@@ -25,7 +25,7 @@ namespace UIComponentsXF.Controls
             set { SetValue(DateProperty, value); }
         }
 
-        private static void DatePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        public static void DatePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var control = (DatePickerControl)bindable;
             control.Date = (DateTime)newValue;
@@ -49,19 +49,29 @@ namespace UIComponentsXF.Controls
         private static void DisplayTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var control = (DatePickerControl)bindable;
-          control.Text = newValue.ToString();
+            control.Text = newValue.ToString();
         }
+
+        public event EventHandler<DateTime> DateChoosenEvent;
 
         public DatePickerControl()
         {
-    
+
             InitializeComponent();
+            DateChoosenEvent += DatePickerControl_DateChoosenEvent;
+            DisplayText = Date.ToString("dd/MM/yyyy");
+        }
+
+        private void DatePickerControl_DateChoosenEvent(object sender, DateTime e)
+        {
+            Date = e;
+            DisplayText = Date.ToString("dd/MM/yyyy");
         }
 
         void OnDatePickerClicked(System.Object sender, System.EventArgs e)
         {
-            BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();           
-            page.ToogleModalVisibility(true , new DatePickerViewComponent(Date, null, null) );
+            BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
+            page.ToogleModalVisibility(true, new DatePickerViewComponent(Date, DateChoosenEvent, null, null));
         }
     }
 }

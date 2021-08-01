@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UIComponentsXF.Controls;
 using UIComponentsXF.DataStores;
 using Xamarin.Forms;
 
@@ -9,7 +10,7 @@ namespace UIComponentsXF.ViewComponents
     public partial class DatePickerViewComponent : Grid
     {
 
-        public DateTime ChosenDate {get ; set ;}
+        public DateTime ChosenDate { get; set; }
         public DateTime CurrentDate { get; set; }
         public DateTime PreviousMonth { get; set; }
         public DateTime NextMonth { get; set; }
@@ -17,9 +18,9 @@ namespace UIComponentsXF.ViewComponents
         public int Month { get; set; }
         public int Day { get; set; }
 
-        public Dictionary<DayOfWeek, List<int>> MonthDaysPerWeekDay { get; set; }
-        public Dictionary<DayOfWeek, int> PreviousMonthLastWeekDaysPerWeekDay { get; set; }
-        public Dictionary<DayOfWeek, int> NextMonthFirstWeekDaysPerWeekDay { get; set; }
+        public Dictionary<DayOfWeek, List<DateTime>> MonthDaysPerWeekDay { get; set; }
+        public Dictionary<DayOfWeek, DateTime> PreviousMonthLastWeekDaysPerWeekDay { get; set; }
+        public Dictionary<DayOfWeek, DateTime> NextMonthFirstWeekDaysPerWeekDay { get; set; }
         public static Dictionary<DayOfWeek, int> DayOfWeekIndexDictionary { get; set; } = new Dictionary<DayOfWeek, int>
         {
             { DayOfWeek.Sunday,     0 },
@@ -31,7 +32,7 @@ namespace UIComponentsXF.ViewComponents
             { DayOfWeek.Saturday,   6 },
 
         };
-        public DatePickerViewComponent(DateTime currentDate, DateTime? minDate, DateTime? date)
+        public DatePickerViewComponent(DateTime currentDate, EventHandler<DateTime> dateChoosenEvent, DateTime? minDate, DateTime? date)
         {
             InitializeComponent();
             CurrentDate = DateTime.Parse(currentDate.ToString("dd/MM/yyyy"), LanguageDataStore.CurrentAplicationCultureInfo);
@@ -49,8 +50,13 @@ namespace UIComponentsXF.ViewComponents
             MessagingCenter.Subscribe<DateButton, DateTime>(this, "DateChanged", (sender, arg) =>
             {
                 ChosenDate = DateTime.Parse(arg.ToString("dd/MM/yyyy"), LanguageDataStore.CurrentAplicationCultureInfo);
+                dateChoosenEvent?.Invoke(this, ChosenDate);
+
+
             });
         }
+
+        
 
         public static IEnumerable<DateTime> AllDatesInMonth(int year, int month)
         {
@@ -79,14 +85,14 @@ namespace UIComponentsXF.ViewComponents
         private void SetMonthDaysPerWeekDay(DateTime date)
         {
             var datesInMonth = AllDatesInMonth(date.Year, date.Month);
-            MonthDaysPerWeekDay = new Dictionary<DayOfWeek, List<int>>();
-            MonthDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).Select(wd => wd.Day).ToList());
-            MonthDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(wd => wd.Day).ToList());
-            MonthDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).Select(wd => wd.Day).ToList());
-            MonthDaysPerWeekDay.Add(DayOfWeek.Wednesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Wednesday).Select(wd => wd.Day).ToList());
-            MonthDaysPerWeekDay.Add(DayOfWeek.Thursday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Thursday).Select(wd => wd.Day).ToList());
-            MonthDaysPerWeekDay.Add(DayOfWeek.Friday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Friday).Select(wd => wd.Day).ToList());
-            MonthDaysPerWeekDay.Add(DayOfWeek.Saturday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Saturday).Select(wd => wd.Day).ToList());
+            MonthDaysPerWeekDay = new Dictionary<DayOfWeek, List<DateTime>>();
+            MonthDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).ToList());
+            MonthDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).ToList());
+            MonthDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).ToList());
+            MonthDaysPerWeekDay.Add(DayOfWeek.Wednesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Wednesday).ToList());
+            MonthDaysPerWeekDay.Add(DayOfWeek.Thursday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Thursday).ToList());
+            MonthDaysPerWeekDay.Add(DayOfWeek.Friday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Friday).ToList());
+            MonthDaysPerWeekDay.Add(DayOfWeek.Saturday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Saturday).ToList());
 
 
             var lastMonth = date.AddMonths(-1);
@@ -100,14 +106,14 @@ namespace UIComponentsXF.ViewComponents
         private void SetPreviousMonthLastWeekDaysPerWeekDay(DateTime date)
         {
             var datesInMonth = LastWeekFromPreviousMonth(date.Year, date.Month);
-            PreviousMonthLastWeekDaysPerWeekDay = new Dictionary<DayOfWeek, int>();
-            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).Select(wd => wd.Day).FirstOrDefault());
-            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(wd => wd.Day).FirstOrDefault());
-            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).Select(wd => wd.Day).FirstOrDefault());
-            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Wednesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Wednesday).Select(wd => wd.Day).FirstOrDefault());
-            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Thursday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Thursday).Select(wd => wd.Day).FirstOrDefault());
-            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Friday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Friday).Select(wd => wd.Day).FirstOrDefault());
-            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Saturday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Saturday).Select(wd => wd.Day).FirstOrDefault());
+            PreviousMonthLastWeekDaysPerWeekDay = new Dictionary<DayOfWeek, DateTime>();
+            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).FirstOrDefault());
+            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).FirstOrDefault());
+            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).FirstOrDefault());
+            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Wednesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Wednesday).FirstOrDefault());
+            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Thursday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Thursday).FirstOrDefault());
+            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Friday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Friday).FirstOrDefault());
+            PreviousMonthLastWeekDaysPerWeekDay.Add(DayOfWeek.Saturday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Saturday).FirstOrDefault());
 
 
         }
@@ -115,14 +121,14 @@ namespace UIComponentsXF.ViewComponents
         private void SetNextMonthFirstWeekDaysPerWeekDay(DateTime date)
         {
             var datesInMonth = FirstWeekFromNextMonth(date.Year, date.Month);
-            NextMonthFirstWeekDaysPerWeekDay = new Dictionary<DayOfWeek, int>();
-            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).Select(wd => wd.Day).FirstOrDefault()); ;
-            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).Select(wd => wd.Day).FirstOrDefault());
-            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).Select(wd => wd.Day).FirstOrDefault());
-            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Wednesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Wednesday).Select(wd => wd.Day).FirstOrDefault());
-            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Thursday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Thursday).Select(wd => wd.Day).FirstOrDefault());
-            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Friday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Friday).Select(wd => wd.Day).FirstOrDefault());
-            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Saturday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Saturday).Select(wd => wd.Day).FirstOrDefault());
+            NextMonthFirstWeekDaysPerWeekDay = new Dictionary<DayOfWeek, DateTime>();
+            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Sunday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Sunday).FirstOrDefault()); ;
+            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Monday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Monday).FirstOrDefault());
+            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Tuesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Tuesday).FirstOrDefault());
+            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Wednesday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Wednesday).FirstOrDefault());
+            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Thursday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Thursday).FirstOrDefault());
+            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Friday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Friday).FirstOrDefault());
+            NextMonthFirstWeekDaysPerWeekDay.Add(DayOfWeek.Saturday, datesInMonth.Where(d => d.DayOfWeek == DayOfWeek.Saturday).FirstOrDefault());
 
 
         }
@@ -148,32 +154,42 @@ namespace UIComponentsXF.ViewComponents
 
             var previousMonthLastDayOfWeek = PreviousMonth.DayOfWeek;
             var previousMonthLastDayOfWeekIndex = DayOfWeekIndexDictionary[previousMonthLastDayOfWeek]; //3 -> quarta feira
-            var dayOfWeek = PreviousMonthLastWeekDaysPerWeekDay.FirstOrDefault(d => d.Value == previousMonthLastDayOfWeekIndex).Key; //quarta feira
-            int lastWeekDayNumberOfPreviousMonth = PreviousMonthLastWeekDaysPerWeekDay[dayOfWeek]; //quarta feira dia 30 de junho
+            var dayOfWeek = PreviousMonthLastWeekDaysPerWeekDay.FirstOrDefault(d => d.Value.Day == previousMonthLastDayOfWeekIndex).Key; //quarta feira
+            int lastWeekDayNumberOfPreviousMonth = PreviousMonthLastWeekDaysPerWeekDay[dayOfWeek].Day; //quarta feira dia 30 de junho
             int firstDayOfLastWeekDay = lastWeekDayNumberOfPreviousMonth - previousMonthLastDayOfWeekIndex; // 27 de junho
             int weekDay = 0;
             int firstWeekDayIndex = 0;
-            for (weekDay = lastWeekDayNumberOfPreviousMonth; weekDay <= PreviousMonth.Day; weekDay++, firstWeekDayIndex++)
+            bool isFirstWeekDayOfCurrentMonthASunday = MonthDaysPerWeekDay[DayOfWeek.Sunday].Any(d => d.Day == 1);
+            if (!isFirstWeekDayOfCurrentMonthASunday)
             {
+                for (weekDay = lastWeekDayNumberOfPreviousMonth; weekDay <= PreviousMonth.Day; weekDay++, firstWeekDayIndex++)
+                {
 
-                // firstWeekStack.Children.Add(new Label() { Text = weekDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
+                    // firstWeekStack.Children.Add(new Label() { Text = weekDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
 
-                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = weekDay.ToString() }, gridCellDimensions));
-
-                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton()))
+                    //  firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = weekDay.ToString() }, gridCellDimensions));
+                    var date = PreviousMonthLastWeekDaysPerWeekDay.FirstOrDefault().Value;
+                    DateTime buttonDate = new DateTime(date.Year, date.Month, weekDay);
+                    firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false), gridCellDimensions));
+                }
             }
 
 
 
 
+
             var currentMonthFirstDayOfMonth = DayOfWeekIndexDictionary.FirstOrDefault(d => d.Value == firstWeekDayIndex).Key; // quinta feira
-            int firstDayOfCurrentMonth = MonthDaysPerWeekDay[currentMonthFirstDayOfMonth].FirstOrDefault(d => d == 1);
+            int firstDayOfCurrentMonth = MonthDaysPerWeekDay[currentMonthFirstDayOfMonth].FirstOrDefault(d => d.Day == 1).Day;
             int currentMonthDayIndex = firstDayOfCurrentMonth;
 
             for (int j = 0; j < 7 - firstWeekDayIndex; j++, currentMonthDayIndex++)
             {
                 //firstWeekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
-                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
+
+                var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
+                DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
+                // firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
+                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true), gridCellDimensions));
             }
 
             finalStack.Children.Add(firstWeekStack);
@@ -193,7 +209,10 @@ namespace UIComponentsXF.ViewComponents
                     if (currentMonthDayIndex == lastDayOfCurrentMonth)
                         break;
                     //weekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
-                    weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
+                    //weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
+                    var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
+                    DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
+                    weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true), gridCellDimensions));
 
                 }
                 if (i % 7 == 0)
@@ -211,13 +230,20 @@ namespace UIComponentsXF.ViewComponents
                         if (currentMonthDayIndex <= lastDayOfCurrentMonth)
                         {
                             // weekStack.Children.Add(new Label() { Text = currentMonthDayIndex.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
-                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
+                            // weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
+                            var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
+                            DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true), gridCellDimensions));
                             currentMonthDayIndex++;
                         }
                         else
                         {
                             //weekStack.Children.Add(new Label() { Text = nextMonthDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
-                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = nextMonthDay.ToString() }, gridCellDimensions));
+                            // weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = nextMonthDay.ToString() }, gridCellDimensions));
+
+                            var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
+                            DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false), gridCellDimensions));
                             nextMonthDay++;
                         }
                     }
@@ -227,14 +253,18 @@ namespace UIComponentsXF.ViewComponents
 
             }
 
-            var firsDayOftWeekOfNextMonth = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault(d => d.Value == nextMonthFirstDayOfWeekIndex).Key;
-            int firstWeekDayNumberOfNextMonth = PreviousMonthLastWeekDaysPerWeekDay[firsDayOftWeekOfNextMonth]; // 1 de agosto
+            var firsDayOftWeekOfNextMonth = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault(d => d.Value.Day == nextMonthFirstDayOfWeekIndex).Key;
+            int firstWeekDayNumberOfNextMonth = PreviousMonthLastWeekDaysPerWeekDay[firsDayOftWeekOfNextMonth].Day; // 1 de agosto
 
             for (int j = 0; j < 7; j++, nextMonthDay++)
             {
                 // finalWeekStack.Children.Add(new Label() { Text = nextMonthDay.ToString(), HorizontalOptions = LayoutOptions.CenterAndExpand });
-                finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = nextMonthDay.ToString() }, gridCellDimensions));
+                //  finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = nextMonthDay.ToString() }, gridCellDimensions));
 
+                var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
+                DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
+
+                finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false), gridCellDimensions));
             }
 
             finalStack.Children.Add(finalWeekStack);
@@ -254,19 +284,37 @@ namespace UIComponentsXF.ViewComponents
     public class DateButton : Button
     {
         public DateTime Date { get; set; }
-        public DateButton(DateTime date) : base()
+        public bool IsInCurrentMonth { get; set; }
+        public DateButton(DateTime date, bool isInCurrentMonth) : base()
         {
 
             Date = date;
-            Text = date.Day.ToString();
-            TextColor = Color.Black;
+            IsInCurrentMonth = isInCurrentMonth;
+            ConstructDateButton();
             Clicked += DateButton_Clicked;
+            MessagingCenter.Subscribe<DateButton, DateTime>(this, "DateChanged", (sender, arg) =>
+            {
+                ConstructDateButton();
+            });
         }
 
-        private   void DateButton_Clicked(object sender, EventArgs e)
+        private void DateButton_Clicked(object sender, EventArgs e)
         {
-            TextColor = Color.ForestGreen;
-            MessagingCenter.Send<DateButton , DateTime>(this, "DateChanged", Date);
+
+
+            MessagingCenter.Send<DateButton, DateTime>(this, "DateChanged", Date);
+            BackgroundColor = Color.ForestGreen;
+        }
+
+        private void ConstructDateButton()
+        {
+            Text = Date.Day.ToString();
+            TextColor = Color.Black;
+            if (!IsInCurrentMonth)
+                TextColor = Color.SlateGray;
+            if (Date == DateTime.Today)
+                TextColor = Color.Red;
+            BackgroundColor = Color.Transparent;
         }
     }
 }
