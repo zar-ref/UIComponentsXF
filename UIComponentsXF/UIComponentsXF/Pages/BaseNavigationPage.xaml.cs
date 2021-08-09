@@ -43,9 +43,11 @@ namespace UIComponentsXF.Pages
                 return;
 
             }
+
             ModalFrame.IsVisible = isVisible;
             ModalBorderFrame.IsVisible = isVisible;
             OverlayFrame.IsVisible = isVisible;
+            ModalFrame.Content = null;
         }
     }
 }

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UIComponentsXF.Models.Controls;
 using UIComponentsXF.Pages;
+using UIComponentsXF.Util;
 using UIComponentsXF.ViewComponents;
 using UIComponentsXF.ViewModels;
 using Xamarin.Forms;
 
 namespace UIComponentsXF.Controls
 {
-    public partial class DatePickerControl : Button //should be an image button maybe in the future...
+    public partial class DatePickerControl : Button, ICustomControl //should be an image button maybe in the future...
     {
 
 
@@ -46,32 +48,37 @@ namespace UIComponentsXF.Controls
             set { SetValue(DisplayTextProperty, value); }
         }
 
+        public int ControlHashCode { get; set; }
+
         private static void DisplayTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var control = (DatePickerControl)bindable;
             control.Text = newValue.ToString();
         }
 
-        public event EventHandler<DateTime> DateChoosenEvent;
+        public event EventHandler<DateTimeControlIdentifier> DateChoosenEvent;
 
         public DatePickerControl()
         {
 
             InitializeComponent();
+            ControlHashCode = HashCodeGenerator.GenerateCustomControlHashCode();
             DateChoosenEvent += DatePickerControl_DateChoosenEvent;
             DisplayText = Date.ToString("dd/MM/yyyy");
         }
 
-        private void DatePickerControl_DateChoosenEvent(object sender, DateTime e)
+        private void DatePickerControl_DateChoosenEvent(object sender, DateTimeControlIdentifier e)
         {
-            Date = e;
+            if (e.HashIdentifier != ControlHashCode)
+                return;
+            Date = e.Date;
             DisplayText = Date.ToString("dd/MM/yyyy");
         }
 
         void OnDatePickerClicked(System.Object sender, System.EventArgs e)
         {
             BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
-            page.ToogleModalVisibility(true, new DatePickerViewComponent(Date, DateChoosenEvent, null, null));
+            page.ToogleModalVisibility(true, new DatePickerViewComponent(Date, DateChoosenEvent,  ControlHashCode, null, null));
         }
     }
 }

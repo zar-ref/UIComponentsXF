@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UIComponentsXF.Controls;
 using UIComponentsXF.DataStores;
+using UIComponentsXF.Models.Controls;
 using Xamarin.Forms;
 
 namespace UIComponentsXF.ViewComponents
@@ -32,10 +33,12 @@ namespace UIComponentsXF.ViewComponents
             { DayOfWeek.Saturday,   6 },
 
         };
-        public DatePickerViewComponent(DateTime currentDate, EventHandler<DateTime> dateChoosenEvent, DateTime? minDate, DateTime? date)
+        public int ControlHashCode { get; set; }
+        public DatePickerViewComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? date)
         {
             InitializeComponent();
-            CurrentDate = DateTime.Parse(currentDate.ToString("dd/MM/yyyy"), LanguageDataStore.CurrentAplicationCultureInfo);
+            daysStack.Children.Clear();
+            CurrentDate = DateTime.ParseExact(currentDate.ToString("dd/MM/yyyy"), "dd/MM/yyyy",  LanguageDataStore.CurrentAplicationCultureInfo);
             var firstDayCurrentMonth = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
             PreviousMonth = firstDayCurrentMonth.AddDays(-1); //last day of previous month
 
@@ -43,20 +46,20 @@ namespace UIComponentsXF.ViewComponents
 
             SetMonthDaysPerWeekDay(CurrentDate);
 
-            daysStack.Children.Add(ConstructDaysOfMonthStack());
-
+            daysStack.Children.Add(ConstructDaysOfMonthStack(controlHashCode));
+            ControlHashCode = controlHashCode;
             //yearDate.Text = currentDate.ToString("dd/MM/yyyy");
             ChosenDate = CurrentDate;
-            MessagingCenter.Subscribe<DateButton, DateTime>(this, "DateChanged", (sender, arg) =>
+            MessagingCenter.Subscribe<DateButton, DateTimeControlIdentifier>(this, "DateChanged", (sender, arg) =>
             {
-                ChosenDate = DateTime.Parse(arg.ToString("dd/MM/yyyy"), LanguageDataStore.CurrentAplicationCultureInfo);
-                dateChoosenEvent?.Invoke(this, ChosenDate);
+                ChosenDate = DateTime.ParseExact(arg.Date.ToString("dd/MM/yyyy"), "dd/MM/yyyy", LanguageDataStore.CurrentAplicationCultureInfo);
+                dateChoosenEvent?.Invoke(this, new DateTimeControlIdentifier() { Date = ChosenDate, HashIdentifier = arg.HashIdentifier });
 
 
             });
         }
 
-        
+
 
         public static IEnumerable<DateTime> AllDatesInMonth(int year, int month)
         {
@@ -133,7 +136,7 @@ namespace UIComponentsXF.ViewComponents
 
         }
 
-        public StackLayout ConstructDaysOfMonthStack()
+        public StackLayout ConstructDaysOfMonthStack(int ControlHashCode)
         {
             int gridCellDimensions = UtilViewBuilder.DeviceWidth / 14;
 
@@ -170,7 +173,7 @@ namespace UIComponentsXF.ViewComponents
                     //  firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = weekDay.ToString() }, gridCellDimensions));
                     var date = PreviousMonthLastWeekDaysPerWeekDay.FirstOrDefault().Value;
                     DateTime buttonDate = new DateTime(date.Year, date.Month, weekDay);
-                    firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false), gridCellDimensions));
+                    firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false , ControlHashCode), gridCellDimensions));
                 }
             }
 
@@ -189,7 +192,7 @@ namespace UIComponentsXF.ViewComponents
                 var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                 DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
                 // firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
-                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true), gridCellDimensions));
+                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true , ControlHashCode), gridCellDimensions));
             }
 
             finalStack.Children.Add(firstWeekStack);
@@ -212,7 +215,7 @@ namespace UIComponentsXF.ViewComponents
                     //weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
                     var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                     DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
-                    weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true), gridCellDimensions));
+                    weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true, ControlHashCode), gridCellDimensions));
 
                 }
                 if (i % 7 == 0)
@@ -233,7 +236,7 @@ namespace UIComponentsXF.ViewComponents
                             // weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = currentMonthDayIndex.ToString() }, gridCellDimensions));
                             var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                             DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
-                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true), gridCellDimensions));
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, true , ControlHashCode), gridCellDimensions));
                             currentMonthDayIndex++;
                         }
                         else
@@ -243,7 +246,7 @@ namespace UIComponentsXF.ViewComponents
 
                             var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
                             DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
-                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false), gridCellDimensions));
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false , ControlHashCode), gridCellDimensions));
                             nextMonthDay++;
                         }
                     }
@@ -264,7 +267,7 @@ namespace UIComponentsXF.ViewComponents
                 var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
                 DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
 
-                finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false), gridCellDimensions));
+                finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, false , ControlHashCode), gridCellDimensions));
             }
 
             finalStack.Children.Add(finalWeekStack);
@@ -281,28 +284,36 @@ namespace UIComponentsXF.ViewComponents
 
 
 
-    public class DateButton : Button
+    public class DateButton : Button, ICustomControl
     {
         public DateTime Date { get; set; }
         public bool IsInCurrentMonth { get; set; }
-        public DateButton(DateTime date, bool isInCurrentMonth) : base()
+        public int ControlHashCode { get; set; }
+
+        public DateButton(DateTime date, bool isInCurrentMonth, int hashCode) : base()
         {
 
-            Date = date;
+            // Date = date;
+            var datestr = date.ToString();
+            var datestr2 = date.ToString("dd/MM/yyyy");
+            Date = DateTime.ParseExact(date.ToString("dd/MM/yyyy"), "dd/MM/yyyy",  LanguageDataStore.CurrentAplicationCultureInfo);
             IsInCurrentMonth = isInCurrentMonth;
+            ControlHashCode = hashCode;
             ConstructDateButton();
             Clicked += DateButton_Clicked;
-            MessagingCenter.Subscribe<DateButton, DateTime>(this, "DateChanged", (sender, arg) =>
+            MessagingCenter.Subscribe<DateButton, DateTimeControlIdentifier>(this, "DateChanged", (sender, arg) =>
             {
                 ConstructDateButton();
             });
         }
 
         private void DateButton_Clicked(object sender, EventArgs e)
-        {
-
-
-            MessagingCenter.Send<DateButton, DateTime>(this, "DateChanged", Date);
+        {    
+            MessagingCenter.Send(this, "DateChanged", new DateTimeControlIdentifier()
+            {
+                Date = DateTime.ParseExact(Date.ToString("dd/MM/yyyy"), "dd/MM/yyyy", LanguageDataStore.CurrentAplicationCultureInfo),
+                HashIdentifier = ControlHashCode
+            });
             BackgroundColor = Color.ForestGreen;
         }
 
