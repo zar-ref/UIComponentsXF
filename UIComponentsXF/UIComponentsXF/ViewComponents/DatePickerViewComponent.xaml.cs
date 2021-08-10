@@ -10,8 +10,16 @@ namespace UIComponentsXF.ViewComponents
 {
     public partial class DatePickerViewComponent : Grid, ICustomControl
     {
-
-        public DateTime ChosenDate { get; set; }
+        private DateTime chosenDate { get; set; }
+        public DateTime ChosenDate
+        {
+            get { return chosenDate; }
+            set
+            {
+                chosenDate = value;
+                FillCurrentDayStack();
+            }
+        }
         public DateTime CurrentDate { get; set; }
         public DateTime PreviousMonth { get; set; }
         public DateTime NextMonth { get; set; }
@@ -38,18 +46,17 @@ namespace UIComponentsXF.ViewComponents
         public DatePickerViewComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? date)
         {
             InitializeComponent();
-            ConstructComponent(currentDate , dateChoosenEvent , controlHashCode, null , null);
+            ConstructComponent(currentDate, dateChoosenEvent, controlHashCode, null, null);
         }
 
-  
 
-        public  void ConstructComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? date)
+
+        public void ConstructComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? date)
         {
             daysStack.Children.Clear();
             CurrentDate = DateTime.ParseExact(currentDate.ToString("dd/MM/yyyy"), "dd/MM/yyyy", LanguageDataStore.CurrentAplicationCultureInfo);
             var firstDayCurrentMonth = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
             PreviousMonth = firstDayCurrentMonth.AddDays(-1); //last day of previous month
-
             NextMonth = CurrentDate.AddMonths(1).AddDays(-(CurrentDate.Day - 1)); //first day of next month
 
             SetMonthDaysPerWeekDay(CurrentDate);
@@ -57,6 +64,7 @@ namespace UIComponentsXF.ViewComponents
             daysStack.Children.Add(ConstructDaysOfMonthStack(controlHashCode, CurrentDate));
             ControlHashCode = controlHashCode;
             ChosenDate = CurrentDate;
+            ConstructCurrentMonthLabel();
             DateChoosenEvent = dateChoosenEvent;
             MessagingCenter.Subscribe<DateButton, DateTimeControlIdentifier>(this, "DateChanged", (sender, arg) =>
             {
@@ -155,7 +163,7 @@ namespace UIComponentsXF.ViewComponents
             {
                 var weekHeaderDay = LanguageDataStore.CurrentAplicationCultureInfo.DateTimeFormat.GetDayName(weekHeader);
                 weekHeadersStack.Children.Add(UtilViewBuilder.CenteredGrid(new Label() { Text = weekHeaderDay.Substring(0, 1).ToUpper() }, gridCellDimensions));
-                
+
             }
             finalStack.Children.Add(weekHeadersStack);
 
@@ -189,7 +197,7 @@ namespace UIComponentsXF.ViewComponents
 
             for (int j = 0; j < 7 - firstWeekDayIndex; j++, currentMonthDayIndex++)
             {
-              
+
 
                 var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                 DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
@@ -251,12 +259,13 @@ namespace UIComponentsXF.ViewComponents
 
             }
 
+            
             var firsDayOftWeekOfNextMonth = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault(d => d.Value.Day == nextMonthFirstDayOfWeekIndex).Key;
             int firstWeekDayNumberOfNextMonth = PreviousMonthLastWeekDaysPerWeekDay[firsDayOftWeekOfNextMonth].Day; // 1 de agosto
 
             for (int j = 0; j < 7; j++, nextMonthDay++)
             {
-              
+
                 var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
                 DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
 
@@ -271,12 +280,22 @@ namespace UIComponentsXF.ViewComponents
 
         }
 
-         
+        private void ConstructCurrentMonthLabel()
+        {
+
+            currentMonthLabel.Text = CurrentDate.ToString("MMMM", LanguageDataStore.CurrentAplicationCultureInfo) + ", " + CurrentDate.Year;
+        }
+
+        private void FillCurrentDayStack()
+        {
+            yearDate.Text = ChosenDate.Year.ToString();
+            weekDayDate.Text = ChosenDate.ToString("dddd", LanguageDataStore.CurrentAplicationCultureInfo) + " " + ChosenDate.ToString("MMMM", LanguageDataStore.CurrentAplicationCultureInfo) + " " + ChosenDate.Day;
+        }
 
         void goLeftButton_Clicked(System.Object sender, System.EventArgs e)
         {
-            CurrentDate = CurrentDate.AddDays(-CurrentDate.Day + 1).AddMonths(-1);          
-            ConstructComponent(CurrentDate, DateChoosenEvent, ControlHashCode, null, null); 
+            CurrentDate = CurrentDate.AddDays(-CurrentDate.Day + 1).AddMonths(-1);
+            ConstructComponent(CurrentDate, DateChoosenEvent, ControlHashCode, null, null);
 
         }
 
