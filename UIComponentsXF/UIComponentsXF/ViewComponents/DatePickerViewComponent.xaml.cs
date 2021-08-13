@@ -97,6 +97,7 @@ namespace UIComponentsXF.ViewComponents
             {
                 yield return new DateTime(year, nextMonth, day);
             }
+
         }
 
         private void SetMonthDaysPerWeekDay(DateTime date)
