@@ -86,7 +86,7 @@ namespace UIComponentsXF.ViewComponents
         public static IEnumerable<DateTime> LastWeekFromPreviousMonth(int year, int previousMonth)
         {
             int days = DateTime.DaysInMonth(year, previousMonth);
-            for (int day = days, previousMonthWeekDay = 0; previousMonthWeekDay < 6; day--, previousMonthWeekDay++)
+            for (int day = days, previousMonthWeekDay = 0; previousMonthWeekDay <= 6; day--, previousMonthWeekDay++)
             {
                 yield return new DateTime(year, previousMonth, day);
             }
@@ -211,19 +211,25 @@ namespace UIComponentsXF.ViewComponents
             var nextMonthFirstDayOfWeekIndex = DayOfWeekIndexDictionary[nextMonthFirstDayOfWeek];
             int i = 0;
             int nextMonthDay = 1;
+            bool hasAddedLastDayOfCurrentMonth = false; 
+            int numberOfWeeksCounter = 0;
             StackLayout finalWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.FillAndExpand };
-            for (int j = 0; j < 5; j++)
+            for (; numberOfWeeksCounter < 5; numberOfWeeksCounter++)
             {
                 StackLayout weekStack = new StackLayout() { Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.FillAndExpand };
                 i = 0;
                 for (i = 0; i < 7; i++, currentMonthDayIndex++)
                 {
                     if (currentMonthDayIndex == lastDayOfCurrentMonth)
+                    {
+                        hasAddedLastDayOfCurrentMonth = true;
                         break;
-
+                    }            
+                    
                     var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                     DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
                     weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode), gridCellDimensions));
+               
 
                 }
                 if (i % 7 == 0)
@@ -242,8 +248,11 @@ namespace UIComponentsXF.ViewComponents
                         {
                             var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                             DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
+                            if (currentMonthDayIndex == lastDayOfCurrentMonth)
+                                hasAddedLastDayOfCurrentMonth = true;
                             weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode), gridCellDimensions));
                             currentMonthDayIndex++;
+                           
                         }
                         else
                         {
@@ -259,20 +268,38 @@ namespace UIComponentsXF.ViewComponents
 
             }
 
-            
+
             var firsDayOftWeekOfNextMonth = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault(d => d.Value.Day == nextMonthFirstDayOfWeekIndex).Key;
             int firstWeekDayNumberOfNextMonth = PreviousMonthLastWeekDaysPerWeekDay[firsDayOftWeekOfNextMonth].Day; // 1 de agosto
-
-            for (int j = 0; j < 7; j++, nextMonthDay++)
+            if (numberOfWeeksCounter < 4)
             {
+                for (int j = 0; j < 7; j++, nextMonthDay++)
+                {
+                    if (!hasAddedLastDayOfCurrentMonth)
+                    {
+                        var lastDayOfCurrentMonthDate = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
+                        DateTime lastDayOfCurrentMonthButtonDate = new DateTime(lastDayOfCurrentMonthDate.Year, lastDayOfCurrentMonthDate.Month, currentMonthDayIndex);
 
-                var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
-                DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
+                        finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(lastDayOfCurrentMonthButtonDate, currentDate, true, ControlHashCode), gridCellDimensions));
+                        hasAddedLastDayOfCurrentMonth = true;
+                        nextMonthDay--;
+                    }
+                    else
+                    {
+                        var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
+                        DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
+                        finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode), gridCellDimensions));
+                    }
 
-                finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode), gridCellDimensions));
+
+
+
+
+                }
+
+                finalStack.Children.Add(finalWeekStack);
             }
-
-            finalStack.Children.Add(finalWeekStack);
+            
 
 
 

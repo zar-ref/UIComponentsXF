@@ -38,8 +38,13 @@ namespace UIComponentsXF.ViewModels
         public UIComponentsPageViewModel()
         {
             Translations = new Dictionary<string, string>();
-            Date1 = DateTime.Today;
-            Date2 = DateTime.Today;
+            Date1 = new DateTime(2022, 2, 2);
+            Date2 = new DateTime(2021, 10, 2);
+        }
+
+        public void ApplyBindingsAfterInit()
+        {
+      
         }
 
     }

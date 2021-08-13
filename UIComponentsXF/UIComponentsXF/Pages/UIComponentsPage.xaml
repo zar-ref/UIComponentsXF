@@ -5,6 +5,7 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="UIComponentsXF.Pages.UIComponentsPage"
+    x:Name="UIComponents"
     xmlns:resx="clr-namespace:UIComponentsXF.Resources">
 
 
@@ -22,8 +23,8 @@
 
                 <StackLayout x:Name="firstStack" > 
                  
-                    <controls:DatePickerControl  Date="{Binding Date1}" />
-                    <controls:DatePickerControl  Date="{Binding Date2}" />
+                    <controls:DatePickerControl  Date="{Binding Path=BindingContext.Date1, Source={x:Reference UIComponents} }" />
+                 <!--    <controls:DatePickerControl  Date="{Binding Date2}" /> -->
                 </StackLayout>
             </StackLayout>
     </pages:BaseNavigationPage.ChildContent>

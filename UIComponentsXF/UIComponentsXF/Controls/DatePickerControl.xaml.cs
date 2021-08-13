@@ -17,6 +17,7 @@ namespace UIComponentsXF.Controls
         public static readonly BindableProperty DateProperty = BindableProperty.Create(
            propertyName: "Date",
            returnType: typeof(DateTime),
+           defaultBindingMode: BindingMode.TwoWay,
            declaringType: typeof(DatePickerControl),
            defaultValue: DateTime.Today,
            propertyChanged: DatePropertyChanged);
@@ -24,13 +25,17 @@ namespace UIComponentsXF.Controls
         public DateTime Date
         {
             get { return (DateTime)GetValue(DateProperty); }
-            set { SetValue(DateProperty, value); }
+            set
+            {
+                SetValue(DateProperty, value);
+            }
         }
 
         public static void DatePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var control = (DatePickerControl)bindable;
             control.Date = (DateTime)newValue;
+            control.DisplayText = control.Date.ToString("dd/MM/yyyy");
         }
 
 
@@ -62,6 +67,7 @@ namespace UIComponentsXF.Controls
         {
 
             InitializeComponent();
+
             ControlHashCode = HashCodeGenerator.GenerateCustomControlHashCode();
             DateChoosenEvent += DatePickerControl_DateChoosenEvent;
             DisplayText = Date.ToString("dd/MM/yyyy");
@@ -78,7 +84,7 @@ namespace UIComponentsXF.Controls
         void OnDatePickerClicked(System.Object sender, System.EventArgs e)
         {
             BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
-            page.ToogleModalVisibility(true, new DatePickerViewComponent(Date, DateChoosenEvent,  ControlHashCode, null, null));
+            page.ToogleModalVisibility(true, new DatePickerViewComponent(Date, DateChoosenEvent, ControlHashCode, null, null));
         }
     }
 }

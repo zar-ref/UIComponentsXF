@@ -25,7 +25,7 @@ namespace UIComponentsXF.Pages
             InitializeComponent();
             _viewModel = new UIComponentsPageViewModel();
             BindingContext = _viewModel;
-            
+            _viewModel.ApplyBindingsAfterInit();
             Label lblToAdd = new Label();
             //lblToAdd.BindingContext = _viewModel;
             lblToAdd.SetBinding(Label.TextProperty, BaseViewModel.GetTranslationBindingFromResource("label-go-to-next-page"));
