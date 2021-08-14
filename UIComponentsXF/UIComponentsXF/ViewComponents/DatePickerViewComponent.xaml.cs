@@ -150,6 +150,7 @@ namespace UIComponentsXF.ViewComponents
 
 
         }
+     
 
         public StackLayout ConstructDaysOfMonthStack(int ControlHashCode, DateTime currentDate)
         {
