@@ -23,8 +23,11 @@
 
                 <StackLayout x:Name="firstStack" > 
                  
-                    <controls:DatePickerControl  Date="{Binding Path=BindingContext.Date1, Source={x:Reference UIComponents} }" />
-                 <!--    <controls:DatePickerControl  Date="{Binding Date2}" /> -->
+                    <controls:DatePickerControl  Date="{Binding Path=BindingContext.Date1, Source={x:Reference UIComponents}}"
+                                                 MinDate="{Binding Path=BindingContext.Date2, Source={x:Reference UIComponents}}"
+                                                 MaxDate="{Binding Path=BindingContext.Date3, Source={x:Reference UIComponents}}"
+                                                 />
+                    <controls:DatePickerControl  Date="{Binding Date2}" />  
                 </StackLayout>
             </StackLayout>
     </pages:BaseNavigationPage.ChildContent>

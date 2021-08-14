@@ -4,6 +4,7 @@ using System.Linq;
 using UIComponentsXF.Controls;
 using UIComponentsXF.DataStores;
 using UIComponentsXF.Models.Controls;
+using UIComponentsXF.Pages;
 using Xamarin.Forms;
 
 namespace UIComponentsXF.ViewComponents
@@ -23,9 +24,8 @@ namespace UIComponentsXF.ViewComponents
         public DateTime CurrentDate { get; set; }
         public DateTime PreviousMonth { get; set; }
         public DateTime NextMonth { get; set; }
-        public int Year { get; set; }
-        public int Month { get; set; }
-        public int Day { get; set; }
+        public DateTime? MinDate { get; set; } = null;
+        public DateTime? MaxDate { get; set; } = null;
 
         public Dictionary<DayOfWeek, List<DateTime>> MonthDaysPerWeekDay { get; set; }
         public Dictionary<DayOfWeek, DateTime> PreviousMonthLastWeekDaysPerWeekDay { get; set; }
@@ -43,15 +43,19 @@ namespace UIComponentsXF.ViewComponents
         };
         public int ControlHashCode { get; set; }
         public EventHandler<DateTimeControlIdentifier> DateChoosenEvent { get; set; }
-        public DatePickerViewComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? date)
+        public DatePickerViewComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? maxDate)
         {
             InitializeComponent();
-            ConstructComponent(currentDate, dateChoosenEvent, controlHashCode, null, null);
+            if (minDate != null)
+                MinDate = minDate;
+            if (MinDate != null)
+                MaxDate = maxDate;
+            ConstructComponent(currentDate, dateChoosenEvent, controlHashCode, minDate, maxDate);
         }
 
 
 
-        public void ConstructComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? date)
+        public void ConstructComponent(DateTime currentDate, EventHandler<DateTimeControlIdentifier> dateChoosenEvent, int controlHashCode, DateTime? minDate, DateTime? maxDate)
         {
             daysStack.Children.Clear();
             CurrentDate = DateTime.ParseExact(currentDate.ToString("dd/MM/yyyy"), "dd/MM/yyyy", LanguageDataStore.CurrentAplicationCultureInfo);
@@ -61,7 +65,7 @@ namespace UIComponentsXF.ViewComponents
 
             SetMonthDaysPerWeekDay(CurrentDate);
 
-            daysStack.Children.Add(ConstructDaysOfMonthStack(controlHashCode, CurrentDate));
+            daysStack.Children.Add(ConstructDaysOfMonthStack(controlHashCode, CurrentDate, minDate, maxDate));
             ControlHashCode = controlHashCode;
             ChosenDate = CurrentDate;
             ConstructCurrentMonthLabel();
@@ -69,8 +73,6 @@ namespace UIComponentsXF.ViewComponents
             MessagingCenter.Subscribe<DateButton, DateTimeControlIdentifier>(this, "DateChanged", (sender, arg) =>
             {
                 ChosenDate = DateTime.ParseExact(arg.Date.ToString("dd/MM/yyyy"), "dd/MM/yyyy", LanguageDataStore.CurrentAplicationCultureInfo);
-                DateChoosenEvent?.Invoke(this, new DateTimeControlIdentifier() { Date = ChosenDate, HashIdentifier = arg.HashIdentifier });
-
 
             });
         }
@@ -150,9 +152,9 @@ namespace UIComponentsXF.ViewComponents
 
 
         }
-     
 
-        public StackLayout ConstructDaysOfMonthStack(int ControlHashCode, DateTime currentDate)
+
+        public StackLayout ConstructDaysOfMonthStack(int ControlHashCode, DateTime currentDate, DateTime? minDate, DateTime? maxDate)
         {
             int gridCellDimensions = UtilViewBuilder.DeviceWidth / 14;
 
@@ -185,7 +187,7 @@ namespace UIComponentsXF.ViewComponents
                 {
                     var date = PreviousMonthLastWeekDaysPerWeekDay.FirstOrDefault().Value;
                     DateTime buttonDate = new DateTime(date.Year, date.Month, weekDay);
-                    firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode), gridCellDimensions));
+                    firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode, minDate, maxDate), gridCellDimensions));
                 }
             }
 
@@ -203,7 +205,7 @@ namespace UIComponentsXF.ViewComponents
 
                 var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                 DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
-                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode), gridCellDimensions));
+                firstWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode, minDate, maxDate), gridCellDimensions));
             }
 
             finalStack.Children.Add(firstWeekStack);
@@ -213,7 +215,7 @@ namespace UIComponentsXF.ViewComponents
             var nextMonthFirstDayOfWeekIndex = DayOfWeekIndexDictionary[nextMonthFirstDayOfWeek];
             int i = 0;
             int nextMonthDay = 1;
-            bool hasAddedLastDayOfCurrentMonth = false; 
+            bool hasAddedLastDayOfCurrentMonth = false;
             int numberOfWeeksCounter = 0;
             StackLayout finalWeekStack = new StackLayout() { Orientation = StackOrientation.Horizontal, HorizontalOptions = LayoutOptions.FillAndExpand };
             for (; numberOfWeeksCounter < 5; numberOfWeeksCounter++)
@@ -226,12 +228,12 @@ namespace UIComponentsXF.ViewComponents
                     {
                         hasAddedLastDayOfCurrentMonth = true;
                         break;
-                    }            
-                    
+                    }
+
                     var date = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                     DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
-                    weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode), gridCellDimensions));
-               
+                    weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode, minDate, maxDate), gridCellDimensions));
+
 
                 }
                 if (i % 7 == 0)
@@ -252,15 +254,15 @@ namespace UIComponentsXF.ViewComponents
                             DateTime buttonDate = new DateTime(date.Year, date.Month, currentMonthDayIndex);
                             if (currentMonthDayIndex == lastDayOfCurrentMonth)
                                 hasAddedLastDayOfCurrentMonth = true;
-                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode), gridCellDimensions));
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, true, ControlHashCode, minDate, maxDate), gridCellDimensions));
                             currentMonthDayIndex++;
-                           
+
                         }
                         else
                         {
                             var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
                             DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
-                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode), gridCellDimensions));
+                            weekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode, minDate, maxDate), gridCellDimensions));
                             nextMonthDay++;
                         }
                     }
@@ -282,7 +284,7 @@ namespace UIComponentsXF.ViewComponents
                         var lastDayOfCurrentMonthDate = MonthDaysPerWeekDay.FirstOrDefault().Value.FirstOrDefault();
                         DateTime lastDayOfCurrentMonthButtonDate = new DateTime(lastDayOfCurrentMonthDate.Year, lastDayOfCurrentMonthDate.Month, currentMonthDayIndex);
 
-                        finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(lastDayOfCurrentMonthButtonDate, currentDate, true, ControlHashCode), gridCellDimensions));
+                        finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(lastDayOfCurrentMonthButtonDate, currentDate, true, ControlHashCode, minDate, maxDate), gridCellDimensions));
                         hasAddedLastDayOfCurrentMonth = true;
                         nextMonthDay--;
                     }
@@ -290,7 +292,7 @@ namespace UIComponentsXF.ViewComponents
                     {
                         var date = NextMonthFirstWeekDaysPerWeekDay.FirstOrDefault().Value;
                         DateTime buttonDate = new DateTime(date.Year, date.Month, nextMonthDay);
-                        finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode), gridCellDimensions));
+                        finalWeekStack.Children.Add(UtilViewBuilder.CenteredGrid(new DateButton(buttonDate, currentDate, false, ControlHashCode, minDate, maxDate), gridCellDimensions));
                     }
 
 
@@ -301,7 +303,7 @@ namespace UIComponentsXF.ViewComponents
 
                 finalStack.Children.Add(finalWeekStack);
             }
-            
+
 
 
 
@@ -324,14 +326,27 @@ namespace UIComponentsXF.ViewComponents
         void goLeftButton_Clicked(System.Object sender, System.EventArgs e)
         {
             CurrentDate = CurrentDate.AddDays(-CurrentDate.Day + 1).AddMonths(-1);
-            ConstructComponent(CurrentDate, DateChoosenEvent, ControlHashCode, null, null);
+            ConstructComponent(CurrentDate, DateChoosenEvent, ControlHashCode, MinDate, MaxDate);
 
         }
 
         void goRightButton_Clicked(System.Object sender, System.EventArgs e)
         {
             CurrentDate = CurrentDate.AddDays(-CurrentDate.Day + 1).AddMonths(1);
-            ConstructComponent(CurrentDate, DateChoosenEvent, ControlHashCode, null, null);
+            ConstructComponent(CurrentDate, DateChoosenEvent, ControlHashCode, MinDate, MaxDate);
+        }
+
+        void cancelButton_Clicked(System.Object sender, System.EventArgs e)
+        {
+            BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
+            page.ToogleModalVisibility(false);
+        }
+
+        void saveDateButton_Clicked(System.Object sender, System.EventArgs e)
+        {
+            DateChoosenEvent?.Invoke(this, new DateTimeControlIdentifier() { Date = ChosenDate, HashIdentifier = ControlHashCode });
+            BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
+            page.ToogleModalVisibility(false);
         }
     }
 
@@ -344,8 +359,10 @@ namespace UIComponentsXF.ViewComponents
         public DateTime CurrentDate { get; set; }
         public bool IsInCurrentMonth { get; set; }
         public int ControlHashCode { get; set; }
+        public DateTime? MinDate { get; set; } = null;
+        public DateTime? MaxDate { get; set; } = null;
 
-        public DateButton(DateTime date, DateTime currentDate, bool isInCurrentMonth, int hashCode) : base()
+        public DateButton(DateTime date, DateTime currentDate, bool isInCurrentMonth, int hashCode, DateTime? minDate, DateTime? maxDate) : base()
         {
 
 
@@ -353,6 +370,10 @@ namespace UIComponentsXF.ViewComponents
             CurrentDate = DateTime.ParseExact(currentDate.ToString("dd/MM/yyyy"), "dd/MM/yyyy", LanguageDataStore.CurrentAplicationCultureInfo);
             IsInCurrentMonth = isInCurrentMonth;
             ControlHashCode = hashCode;
+            if (minDate != null)
+                MinDate = minDate;
+            if (maxDate != null)
+                MaxDate = maxDate;
             ConstructDateButton(true);
             Clicked += DateButton_Clicked;
             MessagingCenter.Subscribe<DateButton, DateTimeControlIdentifier>(this, "DateChanged", (sender, arg) =>
@@ -363,6 +384,17 @@ namespace UIComponentsXF.ViewComponents
 
         private void DateButton_Clicked(object sender, EventArgs e)
         {
+            if (MinDate != null)
+            {
+                if (ButtonDate < MinDate)
+                    return;
+            }
+
+            if (MaxDate != null)
+            {
+                if (ButtonDate > MaxDate)
+                    return;
+            }
             MessagingCenter.Send(this, "DateChanged", new DateTimeControlIdentifier()
             {
                 Date = DateTime.ParseExact(ButtonDate.ToString("dd/MM/yyyy"), "dd/MM/yyyy", LanguageDataStore.CurrentAplicationCultureInfo),
@@ -375,12 +407,34 @@ namespace UIComponentsXF.ViewComponents
         {
             Text = ButtonDate.Day.ToString();
             TextColor = Color.Black;
-            if (!IsInCurrentMonth)
+            if (!IsInCurrentMonth && (MinDate == null && MaxDate == null))
                 TextColor = Color.SlateGray;
             if (ButtonDate == CurrentDate)
                 BackgroundColor = Color.ForestGreen;
             if (ButtonDate == DateTime.Today)
                 TextColor = Color.Red;
+
+            if (MinDate != null)
+            {
+                if (ButtonDate < MinDate)
+                {
+                    TextColor = Color.SlateGray;
+                    BackgroundColor = Color.Transparent;
+                }
+             
+
+            }
+
+            if (MaxDate != null)
+            {
+                if (ButtonDate > MaxDate)
+                {
+                    TextColor = Color.SlateGray;
+                    BackgroundColor = Color.Transparent;
+                }
+          
+
+            }
             if (!isInitializing)
                 BackgroundColor = Color.Transparent;
         }

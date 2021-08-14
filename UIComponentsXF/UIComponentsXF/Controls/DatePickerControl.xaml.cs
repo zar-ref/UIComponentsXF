@@ -25,10 +25,7 @@ namespace UIComponentsXF.Controls
         public DateTime Date
         {
             get { return (DateTime)GetValue(DateProperty); }
-            set
-            {
-                SetValue(DateProperty, value);
-            }
+            set { SetValue(DateProperty, value); }
         }
 
         public static void DatePropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -38,6 +35,31 @@ namespace UIComponentsXF.Controls
             control.DisplayText = control.Date.ToString("dd/MM/yyyy");
         }
 
+        public static readonly BindableProperty MinDateProperty = BindableProperty.Create(
+          propertyName: "MinDate",
+          returnType: typeof(DateTime?),
+          defaultBindingMode: BindingMode.OneWay,
+          declaringType: typeof(DatePickerControl),
+          defaultValue: null);
+
+        public DateTime? MinDate
+        {
+            get { return (DateTime?)GetValue(MinDateProperty); }
+            set { SetValue(MinDateProperty, value); }
+        }
+
+        public static readonly BindableProperty MaxDateProperty = BindableProperty.Create(
+        propertyName: "MaxDate",
+        returnType: typeof(DateTime?),
+        defaultBindingMode: BindingMode.OneWay,
+        declaringType: typeof(DatePickerControl),
+        defaultValue: null);
+
+        public DateTime? MaxDate
+        {
+            get { return (DateTime?)GetValue(MaxDateProperty); }
+            set { SetValue(MinDateProperty, value); }
+        }
 
         public static readonly BindableProperty DisplayTextProperty = BindableProperty.Create(
             propertyName: "DisplayText",
@@ -84,7 +106,7 @@ namespace UIComponentsXF.Controls
         void OnDatePickerClicked(System.Object sender, System.EventArgs e)
         {
             BaseNavigationPage page = (BaseNavigationPage)Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
-            page.ToogleModalVisibility(true, new DatePickerViewComponent(Date, DateChoosenEvent, ControlHashCode, null, null));
+            page.ToogleModalVisibility(true, new DatePickerViewComponent(Date, DateChoosenEvent, ControlHashCode, MinDate, MaxDate));
         }
     }
 }

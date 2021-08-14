@@ -70,5 +70,17 @@ namespace UIComponentsXF.Resources {
                 return ResourceManager.GetString("label-choose-date", resourceCulture);
             }
         }
+        
+        internal static string label_ok {
+            get {
+                return ResourceManager.GetString("label-ok", resourceCulture);
+            }
+        }
+        
+        internal static string label_cancel {
+            get {
+                return ResourceManager.GetString("label-cancel", resourceCulture);
+            }
+        }
     }
 }
