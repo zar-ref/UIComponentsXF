@@ -58,5 +58,10 @@ namespace UIComponentsXF.Pages
 
             DisplayAlert("hello" , "hello from the other side" , "back");
         }
+
+        void Button_Clicked_2(System.Object sender, System.EventArgs e)
+        {
+            _viewModel.SwitchColorTheme();
+        }
     }
 }

@@ -6,9 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using UIComponentsXF.Converters;
 using UIComponentsXF.DataStores;
+using UIComponentsXF.Models;
 using UIComponentsXF.Resources;
 using UIComponentsXF.Util;
 using Xamarin.Forms;
+using static UIComponentsXF.Util.Enumerators;
 
 namespace UIComponentsXF.ViewModels
 {
@@ -74,6 +76,26 @@ namespace UIComponentsXF.ViewModels
             binding.Converter = converter;
             binding.ConverterParameter = resource;
             return binding;
+        }
+
+        public Dictionary<string, ColorTheme> Colors { get { return ColorsDataStore.Colors; } }
+
+        public static Binding GetColorBindingFromColor(ColorTypes color)
+        {
+            var converter = new ColorConverter();
+            Binding binding = new Binding("Colors");
+            binding.Converter = converter;
+            binding.ConverterParameter = color.ToString();
+            return binding;
+        }
+
+        public void SwitchColorTheme()
+        {
+            if (ColorsDataStore.CurrentColorTheme == ColorThemes.DarkTheme.ToString())
+                ColorsDataStore.CurrentColorTheme = ColorThemes.LightTheme.ToString();
+            else
+                ColorsDataStore.CurrentColorTheme = ColorThemes.DarkTheme.ToString();
+            OnPropertyChanged("Colors");
         }
 
 

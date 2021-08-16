@@ -6,12 +6,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="UIComponentsXF.Pages.UIComponentsPage"
     x:Name="UIComponents"
-    xmlns:resx="clr-namespace:UIComponentsXF.Resources">
+    xmlns:resx="clr-namespace:UIComponentsXF.Resources"
+    BackgroundColor="{Binding Colors , Converter={StaticResource ColorConverter} , ConverterParameter=Background} "
+    >
 
 
     <pages:BaseNavigationPage.ChildContent  >     
             <StackLayout Grid.RowSpan="3" Grid.ColumnSpan="3">
-           
+
+                <Button Text="Change My Color!" TextColor="Red" Clicked="Button_Clicked_2"/>
                 <Label 
                     Text="{Binding  Path=Translations , Converter={StaticResource TranslationConverter} , ConverterParameter=label-in-next-page}"
                 

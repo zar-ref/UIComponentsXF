@@ -2,12 +2,16 @@
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="UIComponentsXF.App"
-             xmlns:Converters="clr-namespace:UIComponentsXF.Converters">
+             xmlns:Converters="clr-namespace:UIComponentsXF.Converters"
+             xmlns:LocalResources="clr-namespace:UIComponentsXF.Resources">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml"/>
                 <ResourceDictionary>
                     <Converters:TranslationConverter x:Key="TranslationConverter"/>
+                    <Converters:ColorConverter x:Key="ColorConverter"/>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

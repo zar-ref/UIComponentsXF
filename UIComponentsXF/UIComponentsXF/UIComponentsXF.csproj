@@ -37,5 +37,6 @@
     <Folder Include="ViewComponents\" />
     <Folder Include="Models\" />
     <Folder Include="Models\Controls\" />
+    <Folder Include="Resources\Styles\" />
   </ItemGroup>
 </Project>

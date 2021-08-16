@@ -42,6 +42,7 @@ namespace UIComponentsXF
            
             else
                 _viewModel.OnPropertyChanged("Translations");
+            _viewModel.OnPropertyChanged("Colors");
 
         }
     }

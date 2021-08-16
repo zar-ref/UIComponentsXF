@@ -1,4 +1,5 @@
 ﻿using System;
+using UIComponentsXF.DataStores;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -9,7 +10,7 @@ namespace UIComponentsXF
         public App()
         {
             InitializeComponent();
-
+            ColorsDataStore.FillColorsDictionary();
             MainPage = new NavigationPage(new MainPage());
         }
 
